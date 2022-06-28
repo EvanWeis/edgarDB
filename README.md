@@ -13,14 +13,15 @@ Contents of the reports include shares outstanding, market value (where aplicabl
 
 a json file with the description of the GAAP line items is included with this repository
 
-Tables included in the datebase and associated schema are:
-    - companies
-        - cik, intt primary key not null
-        - ticker, text not null
-        - sic, int not null
-        - description, text not null
-        - name, text not null
-        - exchange, text
+Tables included in the datebase and associated schema are
+Companies:
+
+    cik INT PRIMARY KEY NOT NULL,
+    ticker TEXT NOT NULL,
+    sic INT NOT NULL,
+    description TEXT,
+    name TEXT NOT NULL,
+    exchange TEXT
 
 Description:
 
