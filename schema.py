@@ -1,22 +1,20 @@
 # text strings for table schemas
 
 company_schema = """
-                    cik INT PRIMARY KEY NOT NULL,
+                    cik TEXT PRIMARY KEY NOT NULL,
                     ticker TEXT NOT NULL,
                     name TEXT NOT NULL,
-                    sic INT,
+                    sic TEXT,
                     descprition TEXT,
                     exchange TEXT
                  """
 
 filing_schema = """
-                    accn INT PRIMARY KEY NOT NULL,
-                    cik INT FOREIGN KEY NOT NULL,
-                    end DATE,
-                    fy TEXT,
-                    fp TEXT,
-                    form TEXT,
-                    filing_date, DATE
+                    accn TEXT PRIMARY KEY NOT NULL,
+                    cik TEXT,
+                    form TEXT NOT NULL,
+                    filingDate DATE,
+                    reportDate DATE
                 """
 
 report_10K_schema = """
