@@ -6,13 +6,13 @@
 # company facts: https://www.sec.gov/Archives/edgar/daily-index/xbrl/companyfacts.zip
 # the file sizes are large and may take a while to download, approximately 5.69 Gb and 13 Gb respectively.
 
+from itertools import zip_longest
 import os, sqlite3
 from json import load
 from schema import *
 from sqlite3 import Error
 
 test_submissions_path = "C:\\Users\\weise\\Documents\\Projects\\edgarDB\\edgar_sample\\submissions\\"
-test__path = "C:\\Users\\weise\\Documents\\Projects\\edgarDB\\edgar_sample\\test\\"
 test_filings_path = "C:\\Users\\weise\\Documents\\Projects\\edgarDB\\edgar_sample\\filings\\"
 submissions_path = "C://Users//weise//Desktop//EDGAR//submissions//"
 facts_path = "C://Users//weise//Desktop//EDGAR//companyfacts//"
@@ -136,19 +136,142 @@ def create_filings_table(db_name: str = 'edgar.db', table_name: str = 'filings')
     finally:
         if conn:
             conn.close()
+       
 
-    print('Done!')       
+def create_reports_table(form: str, table_name: str, db_name: str = 'edgar.db') -> None:
 
-def create_reports_10k():
-    pass
 
-def create_report_10Q():
-    pass
+    files = next(os.walk(facts_path), (None, None, []))[2]
+    files_path = [facts_path + file for file in files if len(file) == 18]
+
+    try:
+                    
+        conn = sqlite3.connect(db_name)        
+        conn.execute("DROP TABLE IF EXISTS {}".format(table_name))
+        conn.execute("CREATE TABLE {} ({})".format(table_name, report_10K_schema))
+
+    except Error as e:
+        print('ERROR creating table')
+        print(e)
+
+    for p in files_path:
+        with open(p, 'rb') as f:
+            data = load(f)
+
+        try:
+            trans = []
+            accn = [
+                data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares'][i]['accn']
+                for i in 
+                range(len(data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares']))
+                if 
+                data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares'][i]['form'] == form
+            ]
+            try:
+                cash = {
+                    data['facts']['us-gaap']['CashAndCashEquivalentsAtCarryingValue']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['CashAndCashEquivalentsAtCarryingValue']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['CashAndCashEquivalentsAtCarryingValue']['units']['USD']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:
+                shares = {
+                    data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares'][i]['accn'] :
+                    data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares'][i]['val']
+                    for i in 
+                    range(len(data['facts']['dei']['EntityCommonStockSharesOutstanding']['units']['shares']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:      
+                ac = {
+                    data['facts']['us-gaap']['AssetsCurrent']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['AssetsCurrent']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['AssetsCurrent']['units']['USD']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:
+                assets = {
+                    data['facts']['us-gaap']['Assets']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['Assets']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['Assets']['units']['USD']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:
+                lc = {
+                    data['facts']['us-gaap']['LiabilitiesCurrent']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['LiabilitiesCurrent']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['LiabilitiesCurrent']['units']['USD']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:             
+                le = {
+                    data['facts']['us-gaap']['LiabilitiesAndStockholdersEquity']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['LiabilitiesAndStockholdersEquity']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['LiabilitiesAndStockholdersEquity']['units']['USD']))
+                }
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+            try:
+                ni = {
+                    data['facts']['us-gaap']['NetIncomeLoss']['units']['USD'][i]['accn'] :
+                    data['facts']['us-gaap']['NetIncomeLoss']['units']['USD'][i]['val']
+                    for i in 
+                    range(len(data['facts']['us-gaap']['NetIncomeLoss']['units']['USD']))
+                }     
+            except KeyError as e:
+                print("Warning, KeyError:", e, " is not a valid key")
+                pass
+
+            for k,a,b,c,d,e,f,g in zip_longest( assets.keys(),
+                                                shares.values(),
+                                                cash.values(),
+                                                ac.values(),
+                                                assets.values(),
+                                                lc.values(),
+                                                le.values(),
+                                                ni.values()
+                                                ):
+                if k in accn:
+                    vals = (k,form,a,b,c,d,e,f,g)
+                    trans.append(vals)
+            try:
+
+                conn = sqlite3.connect(db_name)
+                conn.executemany("INSERT INTO {} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)".format(table_name), trans)
+                conn.commit()
+
+            except Error as e:
+                print('ERROR updating table')
+                print(e)
+
+            finally:
+                if conn:
+                    conn.close()
+        except KeyError as e:
+            print('No Key: ', e)
+            pass
 
 def main():
-
+    
     #create_company_table()
-    create_filings_table()
-
+    #create_filings_table()
+    #create_reports_table('10-Q', 'quarterlyReports')
+    pass
 
 if __name__=='__main__': main()

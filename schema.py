@@ -18,9 +18,15 @@ filing_schema = """
                 """
 
 report_10K_schema = """
-                        accn INT PRIMARY KEY NOT NULL,
-                        outstanding_shares INT,
-                        market_value INT,
+                        accn TEXT PRIMARY KEY NOT NULL,
+                        report TEXT,
+                        CommonStockSharesOutstanding INT,
+                        CashAndEquivalent INT,
+                        CurrentAssets INT,
+                        Assets INT,
+                        CurrentLiabilities INT,
+                        LiabilitiesAndEquity INT,
+                        NetIncome INT
                     """
 
 report_10Q_schema = """
