@@ -1,4 +1,4 @@
--- Script to identify companies with highest "Gross Profitability Premium" as compared to book value 
+-- SQLite3 Script to identify companies with highest "Gross Profitability Premium" as compared to book value 
 -- based on Novy-Marx 2012, "The Other Side of Value: The Gross Profitability Premium"
 -- http://rnm.simon.rochester.edu/research/OSoV.pdf
 
