@@ -20,7 +20,7 @@ ORDER BY COUNT(name) DESC
 
 -- Calculate Average Gross Profitability by sector accross all years
 -- Limit to companies with assets greater than $200,000
-SELECT sic,
+SELECT sic AS "SIC",
 descprition AS "Description",
 COUNT(name) AS "Compaines Included",
 
@@ -29,17 +29,18 @@ ROUND(AVG(Assets), 0) AS "Avg Assets",
 
 ROUND(AVG(CAST(NetIncome AS float)/CAST(Assets AS float)), 4) AS "Avg Gross Profitability"
 
-FROM Companies
-JOIN filings
-ON companies.cik = filings.cik
-JOIN annualReports
-ON filings.accn = annualReports.accn
+FROM Companies AS c
+JOIN filings AS f
+ON c.cik = f.cik
+JOIN annualReports AS a
+ON f.accn = a.accn
 
-WHERE Assets > 200000
+WHERE Assets > 200000 AND strftime('%Y', f.reportDate) IN ('2018', '2019', '2020', '2021')
 
 GROUP BY sic
 
 ORDER BY AVG(CAST(NetIncome AS float)/CAST(Assets AS float)) DESC
+LIMIT 15
 ;
 
 -- Calculate Median Gross Profitability by sector accross all years
