@@ -33,3 +33,8 @@ report_10Q_schema = """
                         accn INT PRIMARY KEY NOT NULL,
                         outstanding_shares INT,
                     """
+r2k_schema = """
+                ticker TEXT PRIMARY KEY NOT NULL,
+                name TEXT,
+                sector TEXT
+             """
